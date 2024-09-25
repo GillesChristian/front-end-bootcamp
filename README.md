@@ -29,8 +29,34 @@ To learn more about Next.js, take a look at the following resources:
 
 You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-## Deploy on Vercel
+## External API Integration
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+The application integrates with external APIs to manage student data, ensuring dynamic and up-to-date information.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Student API
+
+- **Base URL**: `http://127.0.0.1:9000/api/students`
+
+- **Endpoints**:
+  - **GET /api/students**: Retrieve a list of all students.
+  - **GET /api/students/{id}**: Retrieve details of a specific student.
+  - **POST /api/students**: Add a new student to the system.
+  - **PUT /api/students/{id}**: Update an existing student's information.
+  - **DELETE /api/students/{id}**: Remove a student from the system.
+
+### Usage in the Codebase
+
+- **Hooks**:
+  - `useStudents` (`hooks/use-students.ts`): Fetches and manages the list of students.
+  - `useStudent` (`hooks/use-student.ts`): Fetches and manages a single student's data.
+  - `useDeleteStudent` (`hooks/use-delete-student.ts`): Handles the deletion of a student.
+
+- **Components**:
+  - `StudentForm` (`components/Studentform.tsx`): Form for adding a new student.
+  - `EditStudentForm` (`components/EditStudentForm.tsx`): Form for editing existing student information.
+  - `StudentInfo` (`components/student-info.tsx`): Displays information of a selected student.
+
+### Error Handling and Optimization
+
+- **Error Handling**: All API interactions include error handling to manage failures gracefully and provide user feedback.
+- **Performance Optimization**: Implements React Server Components (RSC) and dynamic loading to enhance performance and reduce initial load times.
