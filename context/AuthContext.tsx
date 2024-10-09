@@ -1,4 +1,5 @@
-// contexts/AuthContext.tsx
+"use client";
+
 import {
   createContext,
   useContext,
@@ -6,15 +7,14 @@ import {
   useState,
   ReactNode,
 } from "react";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
+import jwt, { decode } from "jsonwebtoken";
 import { getToken, removeToken, setToken } from "@/lib/auth";
-import jwt from "jsonwebtoken";
 
 interface User {
   username: string;
   role: string;
 }
-
 interface AuthContextType {
   user: User | null;
   loading: boolean;
@@ -25,48 +25,71 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const JWT_SECRET = "your-secret-key"; // Must match your backend secret
-
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  useEffect(() => {
+  const getRoute = (tokenRole: string) => {
+    // Get route based on role.
+    if (tokenRole === "admin") {
+      router.push("/admin");
+    } else if (tokenRole === "teacher") {
+      router.push("/teachers");
+    } else {
+      router.push("/students");
+    }
+  };
+
+  const validateToken = () => {
     const token = getToken();
+
     if (token) {
       try {
-        const decodedToken = jwt.verify(token, JWT_SECRET) as User;
+        const decodedToken = decode(token) as User;
         setUser(decodedToken);
       } catch (error) {
-        console.error("Invalid token", error);
+        console.error("Invalid or expired token", error);
+        removeToken();
+        setUser(null);
+        router.push("/login");
       }
+    } else {
+      router.push("/login");
     }
+
     setLoading(false);
-  }, []);
+  };
+
+  useEffect(() => {
+    // Call validateToken on component mount
+    validateToken();
+  }, [router]);
 
   const login = async (username: string, password: string) => {
+    // Login Provider.
     try {
-      const res = await fetch("http://127.0.0.1:5000/api/auth/login", {
+      const response = await fetch("http://127.0.0.1:5000/api/login", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({ username, password }),
       });
 
-      const data = await res.json();
-      if (data.token) {
-        setToken(data.token);
-        const decodedToken = jwt.verify(data.token, JWT_SECRET) as User;
+      if (!response?.ok) {
+        throw new Error("Failed to login");
+      }
+
+      const data = await response?.json();
+      const token = data?.token;
+      if (token) {
+        setToken(token);
+        const decodedToken = decode(token) as User;
         setUser(decodedToken);
-        if (decodedToken.role === "admin") {
-          router.push("/admin");
-        } else if (decodedToken.role === "teacher") {
-          router.push("/teachers");
-        } else {
-          router.push("/students");
-        }
+        getRoute(decodedToken?.role);
       } else {
-        console.error("Login failed:", data.message);
+        console.error("Login failed:", data?.message);
       }
     } catch (error) {
       console.error("Error logging in", error);
@@ -74,9 +97,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const logout = () => {
+    // Logout Provider.
     removeToken();
     setUser(null);
-    router.push("/login");
+    setTimeout(() => {
+      router.push("/login");
+    }, 100);
   };
 
   const value: AuthContextType = {

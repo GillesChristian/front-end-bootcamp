@@ -1,13 +1,15 @@
 "use client";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
-import { House, UsersIcon } from "lucide-react";
+import { House, LogOut, UsersIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 export function TeacherSidebar() {
   const pathname = usePathname();
+  const { logout } = useAuth();
   return (
     <aside className="hidden md:flex h-screen flex-col gap-5 max-w-64 bg-blue-900 text-white">
       <div className="mb-6 md:mb-8 w-full flex items-center md:block p-4 md:p-6">
@@ -23,7 +25,7 @@ export function TeacherSidebar() {
         <h2 className="text-lg md:text-xl font-bold">Udemy Inter. school</h2>
       </div>
       <hr className="w-full" />
-      <nav className="flex md:block p-4 md:p-6">
+      <nav className="flex md:block p-4 md:p-6 ">
         <Link href="/teachers">
           <Button
             variant="ghost"
@@ -47,6 +49,16 @@ export function TeacherSidebar() {
           </Button>
         </Link>
       </nav>
+      <div className="p-4 flex">
+        <Button
+          variant="ghost"
+          className=" justify-start w-full mt-48 text-sm md:text-base hover:text-white hover:bg-primary-foreground/10 rounded transition-colors"
+          onClick={() => logout()}
+        >
+          <LogOut className="mr-3 h-5 w-5" />
+          Logout
+        </Button>
+      </div>
     </aside>
   );
 }
