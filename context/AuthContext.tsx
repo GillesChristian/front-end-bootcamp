@@ -8,7 +8,7 @@ import {
   ReactNode,
 } from "react";
 import { useRouter } from "next/navigation";
-import jwt, { decode } from "jsonwebtoken";
+import { decode } from "jsonwebtoken";
 import { getToken, removeToken, setToken } from "@/lib/auth";
 
 interface User {
@@ -32,18 +32,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const getRoute = (tokenRole: string) => {
     // Get route based on role.
-    if (tokenRole === "admin") {
-      router.push("/admin");
-    } else if (tokenRole === "teacher") {
-      router.push("/teachers");
-    } else {
-      router.push("/students");
-    }
+    tokenRole === "teacher"
+      ? router.push("/teachers")
+      : router.push("/students");
   };
 
   const validateToken = () => {
+    // Check for a token and validate on mount
     const token = getToken();
-
     if (token) {
       try {
         const decodedToken = decode(token) as User;
