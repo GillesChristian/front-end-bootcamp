@@ -1,7 +1,7 @@
 "use client";
 import { StudentTableSkeleton } from "@/components/StudentTableSkeleton";
-import { TopStudentInfo } from "@/components/TopStudentInfo";
-
+import { StudentInfo } from "@/components/student-info";
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -10,7 +10,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useTopStudents } from "@/hooks/use-top-studens";
+import { useDeleteStudent } from "@/hooks/use-delete-student";
+import { useStudents } from "@/hooks/use-students";
+import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useState } from "react";
@@ -23,8 +25,36 @@ interface Student {
 }
 
 export default function page() {
-  const { topStudents, loading, error } = useTopStudents();
+  const { students, loading, error, setStudents, refetchStudents } =
+    useStudents();
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
+
+  const onDeleteSuccess = () => {
+    if (selectedStudent) {
+      setStudents((prevStudents) =>
+        prevStudents.filter((student) => student.id !== selectedStudent.id)
+      );
+      setSelectedStudent(null);
+      toast({
+        title: "Student deleted",
+        description:
+          "The student has been successfully removed from the system.",
+      });
+      refetchStudents();
+    }
+  };
+
+  const {
+    deleteStudent,
+    isDeleting,
+    error: deleteError,
+  } = useDeleteStudent(onDeleteSuccess);
+
+  const handleDeleteStudent = async (id: string) => {
+    if (window.confirm("Are you sure you want to delete this student?")) {
+      await deleteStudent(id);
+    }
+  };
 
   if (loading)
     return (
@@ -33,10 +63,10 @@ export default function page() {
       </div>
     );
   if (error) return <div>Error: {error}</div>;
-  if (!Array.isArray(topStudents) || topStudents.length === 0)
-    return <div>Grade have not be assigned to students yet.</div>;
+  if (!Array.isArray(students) || students.length === 0)
+    return <div>No students found.</div>;
 
-  const formattedStudents: Student[] = topStudents.map((student) => ({
+  const formattedStudents: Student[] = students.map((student) => ({
     ...student,
     date_of_birth: student.date_of_birth || "",
   }));
@@ -44,9 +74,14 @@ export default function page() {
   return (
     <>
       <div className="container h-screen ml-[230px] px-20 py-16 flex flex-col gap-10">
-        <h2 className="text-left text-4xl font-semibold text-gray-400">
-          Top Student List
-        </h2>
+        <Link href="/teachers/add-students">
+          <Button
+            size="lg"
+            className="bg-[rgba(80,156,219,1)] hover:bg-[rgba(80,156,219,.8)]"
+          >
+            Add Student
+          </Button>
+        </Link>
         <div className="flex items-start justify-between">
           <Table className="w-[620px]">
             <TableHeader className="px-2 py-4 bg-blue-950 hover:bg-blue-950 text-white">
@@ -91,8 +126,18 @@ export default function page() {
               ))}
             </TableBody>
           </Table>
-          <TopStudentInfo student={selectedStudent} />
+
+          <StudentInfo
+            student={selectedStudent}
+            onDelete={handleDeleteStudent}
+            isDeleting={isDeleting}
+          />
         </div>
+        {deleteError && (
+          <div className="text-red-500 mt-2">
+            Error deleting student: {deleteError}
+          </div>
+        )}
       </div>
     </>
   );

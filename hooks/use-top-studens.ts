@@ -8,8 +8,8 @@ export type Student = {
   date_of_birth?: string;
 };
 
-export const useStudents = () => {
-  const [students, setStudents] = useState<Student[]>([]);
+export const useTopStudents = () => {
+  const [topStudents, setTopStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -21,11 +21,11 @@ export const useStudents = () => {
         throw new Error("Failed to fetch students");
       }
       const data = await response.json();
-      console.log(data); // Log the entire response
-      setStudents(data.students); // Access the students array from the response
+      console.log("Top students: ", data); // Log the entire response
+      setTopStudents(data.students); // Access the students array from the response
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
-      setStudents([]); // Reset to an empty array on error
+      setTopStudents([]); // Reset to an empty array on error
     } finally {
       setLoading(false);
     }
@@ -36,10 +36,8 @@ export const useStudents = () => {
   }, [fetchStudents]);
 
   return {
-    students,
-    setStudents,
+    topStudents,
     loading,
     error,
-    refetchStudents: fetchStudents,
   };
 };

@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
-import { House, LogOut, UsersIcon } from "lucide-react";
+import { House, LogOut, UsersIcon, SquareUser } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -37,6 +37,29 @@ export function TeacherSidebar() {
             <House className="mr-2 h-4 w-4" /> Dashboard
           </Button>
         </Link>
+        <Link href="/teachers/students-list">
+          <Button
+            variant="ghost"
+            className={cn(
+              "w-full justify-start mb-2 text-sm md:text-base gap-2 hover:bg-blue-500 hover:text-white !py-4",
+              pathname === "/teachers/students-list" && "bg-blue-500 text-white"
+            )}
+          >
+            <UsersIcon className="mr-2 h-4 w-4" /> Students
+          </Button>
+        </Link>
+        <Link href="/teachers/instructors-list">
+          <Button
+            variant="ghost"
+            className={cn(
+              "w-full justify-start mb-2 text-sm md:text-base gap-2 hover:bg-blue-500 hover:text-white !py-4",
+              pathname === "/teachers/instructors-list" &&
+                "bg-blue-500 text-white"
+            )}
+          >
+            <UsersIcon className="mr-2 h-4 w-4" /> Teachers
+          </Button>
+        </Link>
         <Link href="/teachers/profile">
           <Button
             variant="ghost"
@@ -45,14 +68,14 @@ export function TeacherSidebar() {
               pathname === "/teachers/profile" && "bg-blue-500 text-white"
             )}
           >
-            <UsersIcon className="mr-2 h-4 w-4" /> Profile
+            <SquareUser className="mr-2 h-4 w-4" /> Profile
           </Button>
         </Link>
       </nav>
       <div className="p-4 flex">
         <Button
           variant="ghost"
-          className=" justify-start w-full mt-48 text-sm md:text-base hover:text-white hover:bg-primary-foreground/10 rounded transition-colors"
+          className=" justify-start w-full mt-[120px] text-sm md:text-base hover:text-white hover:bg-primary-foreground/10 rounded transition-colors"
           onClick={() => logout()}
         >
           <LogOut className="mr-3 h-5 w-5" />
