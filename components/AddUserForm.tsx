@@ -16,18 +16,21 @@ import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
 import { hashPassword } from "@/lib/auth";
 import { registrationSchema } from "@/lib/zodValidation";
-import { useAddStudent } from "@/hooks/use-add-students";
-
-export default function AddStudentForm() {
+import { concatUsername } from "@/lib/utils";
+import { useAddUser } from "@/hooks/use-add-users";
+interface Status {
+  status: "student" | "instructor";
+}
+export default function AddUserForm(status: Status) {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [date, setDate] = useState<Date | undefined>();
-  const [role] = useState("student");
+  const [role] = useState(status.status);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
-  const { addStudent, isSubmitting } = useAddStudent();
+  const { addUser, isSubmitting } = useAddUser();
   const { toast } = useToast();
 
   const handleChange = (field: string, value: string) => {
@@ -53,11 +56,11 @@ export default function AddStudentForm() {
       await registrationSchema.parseAsync(formData);
 
       const hashedPassword: string = await hashPassword(password);
+      const username = concatUsername(firstName, lastName);
 
       // Add student data after validation
-      await addStudent({
-        firstName,
-        lastName,
+      await addUser({
+        username,
         email,
         hashedPassword,
         role,
@@ -65,7 +68,7 @@ export default function AddStudentForm() {
       });
 
       toast({
-        title: "Student added",
+        title: `${status.status} added`,
         description: `${firstName} ${lastName} has been added successfully!`,
       });
       console.log("Form submitted successfully!");
@@ -224,7 +227,7 @@ export default function AddStudentForm() {
         className="mt-40 bg-gray-50 hover:bg-gray-100 text-black"
         disabled={isSubmitting}
       >
-        {isSubmitting ? "Adding Student..." : "Add Student"}
+        {isSubmitting ? `Adding ${status.status}...` : `Add ${status.status}`}
       </Button>
     </form>
   );

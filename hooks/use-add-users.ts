@@ -1,14 +1,13 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-export function useAddStudent() {
+export function useAddUser() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
-  const addStudent = async (studentData: {
-    firstName: string;
-    lastName: string;
+  const addUser = async (userData: {
+    username: string;
     email: string;
     hashedPassword: string;
     role: string;
@@ -23,14 +22,15 @@ export function useAddStudent() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(studentData),
+        body: JSON.stringify(userData),
       });
 
       if (!response.ok) {
         throw new Error("Failed to add student. Please try again.");
       }
       setTimeout(() => {
-        router.push("/teachers/students-list");
+        if (userData.role === "student") router.push("/teachers/students-list");
+        else router.push("/teachers/instructors-list");
       }, 500);
     } catch (err: any) {
       setError(err.message || "An unexpected error occurred");
@@ -41,7 +41,7 @@ export function useAddStudent() {
   };
 
   return {
-    addStudent,
+    addUser,
     isSubmitting,
   };
 }
