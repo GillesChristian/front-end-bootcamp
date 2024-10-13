@@ -1,22 +1,15 @@
 import { useState, useEffect, useCallback } from "react";
-
-export type Student = {
-  id: string;
-  first_name: string;
-  last_name: string;
-  email: string;
-  date_of_birth?: string;
-};
+import { User } from "./use-students";
 
 export const useTopStudents = () => {
-  const [topStudents, setTopStudents] = useState<Student[]>([]);
+  const [topStudents, setTopStudents] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const fetchStudents = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await fetch("http://127.0.0.1:5000/api/students");
+      const response = await fetch("http://127.0.0.1:5000/api/top-students");
       if (!response.ok) {
         throw new Error("Failed to fetch students");
       }

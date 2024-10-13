@@ -10,33 +10,29 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { User } from "@/hooks/use-students";
 import { useTopStudents } from "@/hooks/use-top-studens";
-import { cn } from "@/lib/utils";
-import Link from "next/link";
+import { cn, splitUsername } from "@/lib/utils";
 import { useState } from "react";
-interface Student {
-  id: string;
-  first_name: string;
-  last_name: string;
-  email: string;
-  date_of_birth?: string;
-}
 
-export default function page() {
+export default function TopStudents() {
   const { topStudents, loading, error } = useTopStudents();
-  const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
+  const [selectedStudent, setSelectedStudent] = useState<User | null>(null);
 
   if (loading)
     return (
-      <div className="container h-screen ml-[230px] px-20 py-5 flex flex-col gap-20">
+      <div className="container h-screen ml-[230px] px-20 py-5 flex flex-col gap-10">
+        <h2 className="text-left text-4xl font-semibold text-gray-400">
+          Top Student List
+        </h2>
         <StudentTableSkeleton />
       </div>
     );
   if (error) return <div>Error: {error}</div>;
   if (!Array.isArray(topStudents) || topStudents.length === 0)
-    return <div>Grade have not be assigned to students yet.</div>;
+    return <div>Grade has not been assigned to students yet.</div>;
 
-  const formattedStudents: Student[] = topStudents.map((student) => ({
+  const formattedStudents: User[] = topStudents.map((student) => ({
     ...student,
     date_of_birth: student.date_of_birth || "",
   }));
@@ -66,29 +62,28 @@ export default function page() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {formattedStudents.map((student) => (
-                <TableRow
-                  key={student.id}
-                  className={cn(
-                    "transition-all ease-in-out duration-200 hover:bg-[#509CDB] hover:text-white px-2 py-4 text-gray-500 ",
-                    selectedStudent?.id === student.id
-                      ? "bg-[#509CDB] text-white"
-                      : "odd:bg-blue-50"
-                  )}
-                  onClick={() => setSelectedStudent(student)}
-                >
-                  <TableCell className="px-2 py-4">
-                    {100 + student.id}
-                  </TableCell>
-                  <TableCell className="px-2 py-4">
-                    {student.first_name}
-                  </TableCell>
-                  <TableCell className="px-2 py-4">
-                    {student.last_name}
-                  </TableCell>
-                  <TableCell className="px-2 py-4">{student.email}</TableCell>
-                </TableRow>
-              ))}
+              {formattedStudents.map((student) => {
+                const { firstName, lastName } = splitUsername(student.username);
+                return (
+                  <TableRow
+                    key={student.id}
+                    className={cn(
+                      "transition-all ease-in-out duration-200 hover:bg-[#509CDB] hover:text-white px-2 py-4 text-gray-500 ",
+                      selectedStudent?.id === student.id
+                        ? "bg-[#509CDB] text-white"
+                        : "odd:bg-blue-50"
+                    )}
+                    onClick={() => setSelectedStudent(student)}
+                  >
+                    <TableCell className="px-2 py-4">
+                      {100 + student.id}
+                    </TableCell>
+                    <TableCell className="px-2 py-4">{firstName}</TableCell>
+                    <TableCell className="px-2 py-4">{lastName}</TableCell>
+                    <TableCell className="px-2 py-4">{student.email}</TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
           <TopStudentInfo student={selectedStudent} />

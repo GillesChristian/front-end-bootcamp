@@ -13,18 +13,17 @@ import {
 import { useDeleteStudent } from "@/hooks/use-delete-student";
 import { useStudents } from "@/hooks/use-students";
 import { toast } from "@/hooks/use-toast";
-import { cn } from "@/lib/utils";
+import { cn, splitUsername } from "@/lib/utils";
 import Link from "next/link";
 import { useState } from "react";
 interface Student {
   id: string;
-  first_name: string;
-  last_name: string;
+  username: string;
   email: string;
   date_of_birth?: string;
 }
 
-export default function page() {
+export default function StudentsList() {
   const { students, loading, error, setStudents, refetchStudents } =
     useStudents();
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
@@ -101,29 +100,28 @@ export default function page() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {formattedStudents.map((student) => (
-                <TableRow
-                  key={student.id}
-                  className={cn(
-                    "transition-all ease-in-out duration-200 hover:bg-[#509CDB] hover:text-white px-2 py-4 text-gray-500 ",
-                    selectedStudent?.id === student.id
-                      ? "bg-[#509CDB] text-white"
-                      : "odd:bg-blue-50"
-                  )}
-                  onClick={() => setSelectedStudent(student)}
-                >
-                  <TableCell className="px-2 py-4">
-                    {100 + student.id}
-                  </TableCell>
-                  <TableCell className="px-2 py-4">
-                    {student.first_name}
-                  </TableCell>
-                  <TableCell className="px-2 py-4">
-                    {student.last_name}
-                  </TableCell>
-                  <TableCell className="px-2 py-4">{student.email}</TableCell>
-                </TableRow>
-              ))}
+              {formattedStudents.map((student) => {
+                const { firstName, lastName } = splitUsername(student.username);
+                return (
+                  <TableRow
+                    key={student.id}
+                    className={cn(
+                      "transition-all ease-in-out duration-200 hover:bg-[#509CDB] hover:text-white px-2 py-4 text-gray-500 ",
+                      selectedStudent?.id === student.id
+                        ? "bg-[#509CDB] text-white"
+                        : "odd:bg-blue-50"
+                    )}
+                    onClick={() => setSelectedStudent(student)}
+                  >
+                    <TableCell className="px-2 py-4">
+                      {100 + student.id}
+                    </TableCell>
+                    <TableCell className="px-2 py-4">{firstName}</TableCell>
+                    <TableCell className="px-2 py-4">{lastName}</TableCell>
+                    <TableCell className="px-2 py-4">{student.email}</TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
 

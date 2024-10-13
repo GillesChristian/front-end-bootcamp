@@ -2,7 +2,6 @@
 import { StudentTableSkeleton } from "@/components/StudentTableSkeleton";
 import { StudentInfo } from "@/components/student-info";
 import { Button } from "@/components/ui/button";
-
 import {
   Table,
   TableBody,
@@ -11,48 +10,51 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useDeleteInstructor } from "@/hooks/use-delete-instructor";
-import { Instructor, UseInstructors } from "@/hooks/use-instructors";
-import { useToast } from "@/hooks/use-toast";
-import { cn } from "@/lib/utils";
+import { useDeleteStudent } from "@/hooks/use-delete-student";
+import { useStudents } from "@/hooks/use-students";
+import { toast } from "@/hooks/use-toast";
+import { cn, splitUsername } from "@/lib/utils";
 import Link from "next/link";
 import { useState } from "react";
+interface Student {
+  id: string;
+  username: string;
+  email: string;
+  date_of_birth?: string;
+}
 
-export default function page() {
-  const { instructors, loading, error, setInstructors, refetchInstructor } =
-    UseInstructors();
-  const [selectedInstructor, setSelectedInstructor] =
-    useState<Instructor | null>(null);
-  const { toast } = useToast();
+export default function InstructorsList() {
+  const { students, loading, error, setStudents, refetchStudents } =
+    useStudents();
+  const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
 
   const onDeleteSuccess = () => {
-    if (selectedInstructor) {
-      setInstructors((prevInstructors) =>
-        prevInstructors.filter(
-          (instructor) => instructor.id !== selectedInstructor.id
-        )
+    if (selectedStudent) {
+      setStudents((prevStudents) =>
+        prevStudents.filter((student) => student.id !== selectedStudent.id)
       );
-      setSelectedInstructor(null);
+      setSelectedStudent(null);
       toast({
-        title: "Instructor deleted",
+        title: "Student deleted",
         description:
-          "The instructor has been successfully removed from the system.",
+          "The student has been successfully removed from the system.",
       });
-      refetchInstructor();
+      refetchStudents();
     }
   };
 
   const {
-    deleteInstructor,
+    deleteStudent,
     isDeleting,
     error: deleteError,
-  } = useDeleteInstructor(onDeleteSuccess);
+  } = useDeleteStudent(onDeleteSuccess);
 
-  const handleDeleteInstructor = async (id: string) => {
-    if (window.confirm("Are you sure you want to delete this Instructor?")) {
-      await deleteInstructor(id);
+  const handleDeleteStudent = async (id: string) => {
+    if (window.confirm("Are you sure you want to delete this student?")) {
+      await deleteStudent(id);
     }
   };
+
   if (loading)
     return (
       <div className="container h-screen ml-[230px] px-20 py-5 flex flex-col gap-20">
@@ -60,18 +62,18 @@ export default function page() {
       </div>
     );
   if (error) return <div>Error: {error}</div>;
-  if (!Array.isArray(instructors) || instructors.length === 0)
-    return <div>No instructor Found.</div>;
+  if (!Array.isArray(students) || students.length === 0)
+    return <div>No students found.</div>;
 
-  const formattedInstructor: Instructor[] = instructors.map((instructor) => ({
-    ...instructor,
-    date_of_birth: instructor.date_of_birth || "",
+  const formattedStudents: Student[] = students.map((student) => ({
+    ...student,
+    date_of_birth: student.date_of_birth || "",
   }));
 
   return (
     <>
       <div className="container h-screen ml-[230px] px-20 py-16 flex flex-col gap-10">
-        <Link href="/teachers/add-instructor">
+        <Link href="/teachers/add-instructors">
           <Button
             size="lg"
             className="bg-[rgba(80,156,219,1)] hover:bg-[rgba(80,156,219,.8)]"
@@ -90,7 +92,7 @@ export default function page() {
                   First Name
                 </TableHead>
                 <TableHead className="px-2 py-4 text-white">
-                  Assign Subject
+                  Last Name
                 </TableHead>
                 <TableHead className="px-2 py-4 text-white">
                   Email Address
@@ -98,39 +100,42 @@ export default function page() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {formattedInstructor.map((instructor) => (
-                <TableRow
-                  key={instructor.id}
-                  className={cn(
-                    "transition-all ease-in-out duration-200 hover:bg-[#509CDB] hover:text-white px-2 py-4 text-gray-500 ",
-                    selectedInstructor?.id === instructor.id
-                      ? "bg-[#509CDB] text-white"
-                      : "odd:bg-blue-50"
-                  )}
-                  onClick={() => setSelectedInstructor(instructor)}
-                >
-                  <TableCell className="px-2 py-4">
-                    {100 + instructor.id}
-                  </TableCell>
-                  <TableCell className="px-2 py-4">
-                    {instructor.first_name}
-                  </TableCell>
-                  <TableCell className="px-2 py-4">
-                    {instructor.last_name}
-                  </TableCell>
-                  <TableCell className="px-2 py-4">
-                    {instructor.email}
-                  </TableCell>
-                </TableRow>
-              ))}
+              {formattedStudents.map((student) => {
+                const { firstName, lastName } = splitUsername(student.username);
+                return (
+                  <TableRow
+                    key={student.id}
+                    className={cn(
+                      "transition-all ease-in-out duration-200 hover:bg-[#509CDB] hover:text-white px-2 py-4 text-gray-500 ",
+                      selectedStudent?.id === student.id
+                        ? "bg-[#509CDB] text-white"
+                        : "odd:bg-blue-50"
+                    )}
+                    onClick={() => setSelectedStudent(student)}
+                  >
+                    <TableCell className="px-2 py-4">
+                      {100 + student.id}
+                    </TableCell>
+                    <TableCell className="px-2 py-4">{firstName}</TableCell>
+                    <TableCell className="px-2 py-4">{lastName}</TableCell>
+                    <TableCell className="px-2 py-4">{student.email}</TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
+
           <StudentInfo
-            student={selectedInstructor}
-            onDelete={handleDeleteInstructor}
+            student={selectedStudent}
+            onDelete={handleDeleteStudent}
             isDeleting={isDeleting}
           />
         </div>
+        {deleteError && (
+          <div className="text-red-500 mt-2">
+            Error deleting student: {deleteError}
+          </div>
+        )}
       </div>
     </>
   );

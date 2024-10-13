@@ -1,7 +1,7 @@
-import { Student } from "@/hooks/use-students";
+import { User } from "@/hooks/use-students";
 
 type StudentInfoProps = {
-  student: Student | null;
+  student: User | null;
 };
 
 export const TopStudentInfo: React.FC<StudentInfoProps> = ({ student }) => {
@@ -10,10 +10,7 @@ export const TopStudentInfo: React.FC<StudentInfoProps> = ({ student }) => {
   return (
     <div className="py-9 px-14 sm:min-w-[350px] h-full rounded-2xl bg-[#509CDB] text-white flex flex-col items-center justify-center gap-4 flex-1">
       <h2 className="text-2xl font-bold">Student Info</h2>
-      <InfoItem
-        label="Student Name"
-        value={`${student.first_name} ${student.last_name}`}
-      />
+      <InfoItem label="Student Name" value={`${student.username}`} />
       <InfoItem label="Student ID" value={student.id} />
       <InfoItem label="Email address" value={student.email} />
       <InfoItem

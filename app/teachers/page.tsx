@@ -1,7 +1,7 @@
 import { ChartNoAxesGantt, UserPlus, BookOpenCheck } from "lucide-react";
 import Link from "next/link";
 
-export default function page() {
+export default function InstructorDashboard() {
   const info = [
     {
       id: 1,

@@ -8,8 +8,15 @@ export type Student = {
   date_of_birth?: string;
 };
 
+export type User = {
+  id: string;
+  username: string;
+  email: string;
+  date_of_birth?: string;
+};
+
 export const useStudents = () => {
-  const [students, setStudents] = useState<Student[]>([]);
+  const [students, setStudents] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
