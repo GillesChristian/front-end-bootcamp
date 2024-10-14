@@ -17,7 +17,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
 
 interface LoginFormInputs {
-  username: string;
+  email: string;
   password: string;
 }
 
@@ -28,7 +28,7 @@ const Login = () => {
 
   const form = useForm<LoginFormInputs>({
     defaultValues: {
-      username: "",
+      email: "",
       password: "",
     },
   });
@@ -36,7 +36,7 @@ const Login = () => {
   const onSubmit = async (data: LoginFormInputs) => {
     setLoginError("");
     try {
-      await login(data?.username, data?.password);
+      await login(data?.email, data?.password);
     } catch (error) {
       setLoginError("Login failed. Please check your credentials."); // You could improve this
     }
@@ -75,11 +75,11 @@ const Login = () => {
                 <div className="flex flex-col gap-4">
                   <FormField
                     control={form.control}
-                    name="username"
-                    rules={{ required: "Username is required" }} // Add validation rules
+                    name="email"
+                    rules={{ required: "email is required" }} // Add validation rules
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Username</FormLabel>
+                        <FormLabel>Email Address</FormLabel>
                         <FormControl>
                           <Input {...field} className="p-4 text-black" />
                         </FormControl>

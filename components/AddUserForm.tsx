@@ -14,9 +14,7 @@ import { ChevronDown } from "lucide-react";
 import { format } from "date-fns";
 import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
-import { hashPassword } from "@/lib/auth";
 import { registrationSchema } from "@/lib/zodValidation";
-import { concatUsername } from "@/lib/utils";
 import { useAddUser } from "@/hooks/use-add-users";
 interface Status {
   status: "student" | "instructor";
@@ -30,7 +28,7 @@ export default function AddUserForm(status: Status) {
   const [date, setDate] = useState<Date | undefined>();
   const [role] = useState(status.status);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
-  const { addUser, isSubmitting } = useAddUser();
+  const { addUser, isSubmitting, addError } = useAddUser();
   const { toast } = useToast();
 
   const handleChange = (field: string, value: string) => {
@@ -49,22 +47,20 @@ export default function AddUserForm(status: Status) {
       email,
       password,
       confirmPassword,
-      date,
+      date: date ? format(date, "MM/dd/yyyy") : "",
     };
     try {
       // Zod validation
       await registrationSchema.parseAsync(formData);
-
-      const hashedPassword: string = await hashPassword(password);
-      const username = concatUsername(firstName, lastName);
-
+      console.log(formData);
       // Add student data after validation
       await addUser({
-        username,
+        firstName,
+        lastName,
         email,
-        hashedPassword,
+        password,
         role,
-        date: date || new Date(),
+        dateOfBirth: formData.date,
       });
 
       toast({
@@ -73,6 +69,7 @@ export default function AddUserForm(status: Status) {
       });
       console.log("Form submitted successfully!");
     } catch (error) {
+      console.log(error);
       if (error instanceof z.ZodError) {
         const fieldErrors: { [key: string]: string } = {};
         error.errors.forEach((err) => {
@@ -166,7 +163,7 @@ export default function AddUserForm(status: Status) {
                   !date && "text-muted-foreground"
                 }`}
               >
-                {date ? format(date, "PPP") : <span>Date of Birth</span>}
+                {date ? format(date, "MM/dd/yyyy") : <span>Date of Birth</span>}
                 <ChevronDown className="mr-2 h-4 w-4" />
               </Button>
             </PopoverTrigger>

@@ -11,27 +11,24 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useDeleteStudent } from "@/hooks/use-delete-student";
-import { useStudents } from "@/hooks/use-students";
-import { toast } from "@/hooks/use-toast";
-import { cn, splitUsername } from "@/lib/utils";
+import { useStudents, Student } from "@/hooks/use-students";
+import { useToast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useState } from "react";
-interface Student {
-  id: string;
-  username: string;
-  email: string;
-  date_of_birth?: string;
-}
 
 export default function StudentsList() {
   const { students, loading, error, setStudents, refetchStudents } =
     useStudents();
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
+  const { toast } = useToast();
 
   const onDeleteSuccess = () => {
     if (selectedStudent) {
       setStudents((prevStudents) =>
-        prevStudents.filter((student) => student.id !== selectedStudent.id)
+        prevStudents.filter(
+          (student) => student.email !== selectedStudent.email
+        )
       );
       setSelectedStudent(null);
       toast({
@@ -67,7 +64,7 @@ export default function StudentsList() {
 
   const formattedStudents: Student[] = students.map((student) => ({
     ...student,
-    date_of_birth: student.date_of_birth || "",
+    date_of_birth: student.dateOfBirth || "",
   }));
 
   return (
@@ -101,13 +98,13 @@ export default function StudentsList() {
             </TableHeader>
             <TableBody>
               {formattedStudents.map((student) => {
-                const { firstName, lastName } = splitUsername(student.username);
+                // const { firstName, lastName } = splitUsername(student.username);
                 return (
                   <TableRow
                     key={student.id}
                     className={cn(
                       "transition-all ease-in-out duration-200 hover:bg-[#509CDB] hover:text-white px-2 py-4 text-gray-500 ",
-                      selectedStudent?.id === student.id
+                      selectedStudent?.email === student.email
                         ? "bg-[#509CDB] text-white"
                         : "odd:bg-blue-50"
                     )}
@@ -116,8 +113,12 @@ export default function StudentsList() {
                     <TableCell className="px-2 py-4">
                       {100 + student.id}
                     </TableCell>
-                    <TableCell className="px-2 py-4">{firstName}</TableCell>
-                    <TableCell className="px-2 py-4">{lastName}</TableCell>
+                    <TableCell className="px-2 py-4">
+                      {student.firstName}
+                    </TableCell>
+                    <TableCell className="px-2 py-4">
+                      {student.lastName}
+                    </TableCell>
                     <TableCell className="px-2 py-4">{student.email}</TableCell>
                   </TableRow>
                 );

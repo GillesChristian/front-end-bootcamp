@@ -1,21 +1,31 @@
 import { useState, useEffect, useCallback } from "react";
-import { User } from "./use-students";
+export interface TopStudent {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  dateOfBirth: string;
+  average_mark: string;
+}
 
 export const useTopStudents = () => {
-  const [topStudents, setTopStudents] = useState<User[]>([]);
+  const [topStudents, setTopStudents] = useState<TopStudent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const fetchStudents = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await fetch("http://127.0.0.1:5000/api/top-students");
+      const response = await fetch("http://127.0.0.1:8000/top-students");
       if (!response.ok) {
-        throw new Error("Failed to fetch students");
+        const errorData = await response.json();
+        const errorMessage =
+          errorData?.detail || "Login failed for an unknown reason.";
+        throw new Error(errorMessage);
       }
       const data = await response.json();
       console.log("Top students: ", data); // Log the entire response
-      setTopStudents(data.students); // Access the students array from the response
+      setTopStudents(data); // Access the students array from the response
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
       setTopStudents([]); // Reset to an empty array on error

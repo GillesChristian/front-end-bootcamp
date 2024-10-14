@@ -1,11 +1,12 @@
+import { getToken } from "@/lib/auth";
 import { useState, useEffect, useCallback } from "react";
 
 export type Student = {
   id: string;
-  first_name: string;
-  last_name: string;
+  firstName: string;
+  lastName: string;
   email: string;
-  date_of_birth?: string;
+  dateOfBirth?: string;
 };
 
 export type User = {
@@ -16,22 +17,30 @@ export type User = {
 };
 
 export const useStudents = () => {
-  const [students, setStudents] = useState<User[]>([]);
+  const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const fetchStudents = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await fetch("http://127.0.0.1:5000/api/students");
+      const token = getToken();
+      const response = await fetch("http://127.0.0.1:8000/students", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       if (!response.ok) {
-        throw new Error("Failed to fetch students");
+        const errorData = await response.json();
+        const errorMessage =
+          errorData?.detail || "Login failed for an unknown reason.";
+        throw new Error(errorMessage);
       }
       const data = await response.json();
       console.log(data); // Log the entire response
-      setStudents(data.students); // Access the students array from the response
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
+      setStudents(data); // Access the students array from the response
+    } catch (error) {
+      setError(error instanceof Error ? error.message : "An error occurred");
       setStudents([]); // Reset to an empty array on error
     } finally {
       setLoading(false);

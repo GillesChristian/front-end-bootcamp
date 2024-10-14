@@ -1,3 +1,4 @@
+import { getToken } from "@/lib/auth";
 import { useState } from "react";
 
 export const useDeleteStudent = (onSuccess: () => void) => {
@@ -9,15 +10,20 @@ export const useDeleteStudent = (onSuccess: () => void) => {
     setError(null);
 
     try {
-      const response = await fetch(
-        `http://127.0.0.1:9000/api/students/${userId}`,
-        {
-          method: "DELETE",
-        }
-      );
+      const token = getToken();
+      const response = await fetch(`http://127.0.0.1:8000/students/${userId}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`, // Include the token here
+          "Content-Type": "application/json",
+        },
+      });
 
       if (!response.ok) {
-        throw new Error("Failed to delete student");
+        const errorData = await response.json();
+        const errorMessage =
+          errorData?.detail || "Login failed for an unknown reason.";
+        throw new Error(errorMessage);
       }
 
       onSuccess();

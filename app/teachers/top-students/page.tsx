@@ -10,14 +10,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { User } from "@/hooks/use-students";
-import { useTopStudents } from "@/hooks/use-top-studens";
-import { cn, splitUsername } from "@/lib/utils";
+import { TopStudent, useTopStudents } from "@/hooks/use-top-studens";
+import { cn } from "@/lib/utils";
 import { useState } from "react";
 
 export default function TopStudents() {
   const { topStudents, loading, error } = useTopStudents();
-  const [selectedStudent, setSelectedStudent] = useState<User | null>(null);
+  const [selectedStudent, setSelectedStudent] = useState<TopStudent | null>(
+    null
+  );
 
   if (loading)
     return (
@@ -32,9 +33,9 @@ export default function TopStudents() {
   if (!Array.isArray(topStudents) || topStudents.length === 0)
     return <div>Grade has not been assigned to students yet.</div>;
 
-  const formattedStudents: User[] = topStudents.map((student) => ({
+  const formattedStudents: TopStudent[] = topStudents.map((student) => ({
     ...student,
-    date_of_birth: student.date_of_birth || "",
+    date_of_birth: student.dateOfBirth || "",
   }));
 
   return (
@@ -63,7 +64,6 @@ export default function TopStudents() {
             </TableHeader>
             <TableBody>
               {formattedStudents.map((student) => {
-                const { firstName, lastName } = splitUsername(student.username);
                 return (
                   <TableRow
                     key={student.id}
@@ -78,8 +78,12 @@ export default function TopStudents() {
                     <TableCell className="px-2 py-4">
                       {100 + student.id}
                     </TableCell>
-                    <TableCell className="px-2 py-4">{firstName}</TableCell>
-                    <TableCell className="px-2 py-4">{lastName}</TableCell>
+                    <TableCell className="px-2 py-4">
+                      {student.firstName}
+                    </TableCell>
+                    <TableCell className="px-2 py-4">
+                      {student.lastName}
+                    </TableCell>
                     <TableCell className="px-2 py-4">{student.email}</TableCell>
                   </TableRow>
                 );

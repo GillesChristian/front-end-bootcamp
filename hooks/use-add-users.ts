@@ -1,40 +1,48 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { getToken } from "@/lib/auth";
 
 export function useAddUser() {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [addError, setError] = useState<string | null>(null);
   const router = useRouter();
-
-  const addUser = async (userData: {
-    username: string;
+  interface User {
+    firstName: string;
+    lastName: string;
     email: string;
-    hashedPassword: string;
+    password: string;
     role: string;
-    date: Date;
-  }) => {
+    dateOfBirth: string;
+  }
+
+  const addUser = async (userData: User) => {
     setIsSubmitting(true);
     setError(null); // Reset error state before new submission
 
     try {
-      const response = await fetch("http://127.0.0.1:5000/auth/register", {
+      const token = getToken();
+      const response = await fetch("http://127.0.0.1:8000/auth/register", {
         method: "POST",
         headers: {
+          Authorization: `Bearer ${token}`, // Include the token here
           "Content-Type": "application/json",
         },
         body: JSON.stringify(userData),
       });
 
       if (!response.ok) {
-        throw new Error("Failed to add student. Please try again.");
+        const errorData = await response.json();
+        console.error("Error response:", errorData);
+        const errorMessage =
+          errorData?.detail || "Login failed for an unknown reason.";
+        throw new Error(errorMessage);
       }
-      setTimeout(() => {
-        if (userData.role === "student") router.push("/teachers/students-list");
-        else router.push("/teachers/instructors-list");
-      }, 500);
+
+      if (userData.role === "student") router.push("/teachers/students-list");
+      else router.push("/teachers/instructors-list");
     } catch (err: any) {
       setError(err.message || "An unexpected error occurred");
-      console.log(error);
+      console.log(addError);
     } finally {
       setIsSubmitting(false);
     }
@@ -43,5 +51,6 @@ export function useAddUser() {
   return {
     addUser,
     isSubmitting,
+    addError,
   };
 }

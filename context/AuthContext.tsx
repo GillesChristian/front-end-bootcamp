@@ -62,30 +62,41 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     validateToken();
   }, [router]);
 
-  const login = async (username: string, password: string) => {
+  const login = async (email: string, password: string) => {
     // Login Provider.
     try {
-      const response = await fetch("http://127.0.0.1:5000/auth/login", {
+      const response = await fetch("http://127.0.0.1:8000/auth/login", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type": "application/x-www-form-urlencoded",
         },
-        body: JSON.stringify({ username, password }),
+        body: new URLSearchParams({
+          username: email,
+          password: password,
+        }),
       });
 
       if (!response?.ok) {
-        throw new Error("Failed to login");
+        const errorData = await response.json();
+        const errorMessage =
+          errorData?.detail || "Login failed for an unknown reason.";
+        throw new Error(errorMessage);
       }
 
       const data = await response?.json();
-      const token = data?.token;
+      const token = data?.access_token;
+
       if (token) {
         setToken(token);
-        const decodedToken = decode(token) as User;
-        setUser(decodedToken);
-        getRoute(decodedToken?.role);
+        try {
+          const decodedToken = decode(token) as User;
+          setUser(decodedToken);
+          getRoute(decodedToken?.role);
+        } catch (error) {
+          console.error("Error decoding token:", error);
+        }
       } else {
-        console.error("Login failed:", data?.message);
+        console.log("Login failed: No access token provided");
       }
     } catch (error) {
       console.error("Error logging in", error);
