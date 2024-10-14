@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from 'next/navigation';
+import { useParams, useRouter } from "next/navigation";
 import { format } from "date-fns";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -9,55 +9,64 @@ import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useStudent } from "@/hooks/use-student";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
-import { useEffect } from 'react';
+import { useEffect } from "react";
 import { DateSelector } from "@/components/DateSelector";
 import { EditStudentFormSkeleton } from "@/components/EditStudentFormSkeleton"; // Import the new component
 
 interface Student {
   id: string;
-  first_name: string;
-  last_name: string;
+  firstName: string;
+  lastName: string;
   email: string;
-  date_of_birth: string;
+  dateOfBirth: string;
 }
 
 const formSchema = z.object({
-  first_name: z.string().min(2, "First name must be at least 2 characters."),
-  last_name: z.string().min(2, "Last name must be at least 2 characters."),
+  firstName: z.string().min(2, "First name must be at least 2 characters."),
+  lastName: z.string().min(2, "Last name must be at least 2 characters."),
   email: z.string().email("Invalid email address."),
-  date_of_birth: z.date()
+  dateOfBirth: z.date(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
 
 interface EditStudentFormProps {
-  params: { id: string };
+  paraams: { id: string };
 }
 
-export function EditStudentForm({ params }: EditStudentFormProps) {
+export function EditStudentForm({ paraams }: EditStudentFormProps) {
   const router = useRouter();
   const { toast } = useToast();
-  const { student, isLoading, updateStudent } = useStudent(params.id);
+  const params = useParams(); // Get the params from the URL
+  const id = params?.id;
+  const { student, isLoading, updateStudent } = useStudent(id as string);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      first_name: "",
-      last_name: "",
+      firstName: "",
+      lastName: "",
       email: "",
-      date_of_birth: new Date(),
+      dateOfBirth: new Date(),
     },
   });
 
   useEffect(() => {
     if (student) {
       form.reset({
-        first_name: student.first_name,
-        last_name: student.last_name,
+        firstName: student.firstName,
+        lastName: student.lastName,
         email: student.email,
-        date_of_birth: new Date(student.date_of_birth),
+        dateOfBirth: new Date(student.dateOfBirth),
       });
     }
   }, [student, form]);
@@ -69,16 +78,16 @@ export function EditStudentForm({ params }: EditStudentFormProps) {
       const updatedStudent: Student = {
         ...student,
         ...values,
-        date_of_birth: format(values.date_of_birth, 'yyyy-MM-dd')
+        dateOfBirth: format(values.dateOfBirth, "yyyy-MM-dd"),
       };
       await updateStudent(updatedStudent);
       toast({
         title: "Success",
         description: "Student information updated successfully.",
       });
-      router.push('/students');
+      router.push("/teachers/students-list");
     } catch (error) {
-      console.error('Failed to update student:', error);
+      console.error("Failed to update student:", error);
       toast({
         title: "Error",
         description: "Failed to update student information.",
@@ -95,11 +104,14 @@ export function EditStudentForm({ params }: EditStudentFormProps) {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="w-full max-w-2xl space-y-8">
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="w-full max-w-2xl space-y-8"
+      >
         <div className="flex flex-col items-center md:flex-row gap-4">
           <FormField
             control={form.control}
-            name="first_name"
+            name="firstName"
             render={({ field }) => (
               <FormItem className="w-full md:w-[350px]">
                 <FormLabel>First Name</FormLabel>
@@ -112,7 +124,7 @@ export function EditStudentForm({ params }: EditStudentFormProps) {
           />
           <FormField
             control={form.control}
-            name="last_name"
+            name="lastName"
             render={({ field }) => (
               <FormItem className="w-full md:w-[350px]">
                 <FormLabel>Last Name</FormLabel>
@@ -140,14 +152,17 @@ export function EditStudentForm({ params }: EditStudentFormProps) {
           />
           <FormField
             control={form.control}
-            name="date_of_birth"
+            name="dateOfBirth"
             render={({ field }) => (
               <DateSelector field={field} label="Date of Birth" />
             )}
           />
         </div>
-        <Button type="submit" className="mt-20 bg-gray-50 hover:bg-gray-100 text-black">
-          Update Student
+        <Button
+          type="submit"
+          className="mt-20 bg-gray-50 hover:bg-gray-100 text-black"
+        >
+          Update User
         </Button>
       </form>
     </Form>

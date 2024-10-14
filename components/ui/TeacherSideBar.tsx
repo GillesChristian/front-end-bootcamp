@@ -1,7 +1,11 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
+import { UseInstructors } from "@/hooks/use-instructors";
+import { User } from "@/hooks/use-students";
+import { getToken } from "@/lib/auth";
 import { cn } from "@/lib/utils";
+import { decode } from "jsonwebtoken";
 import { House, LogOut, UsersIcon, SquareUser } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -9,7 +13,33 @@ import { usePathname } from "next/navigation";
 
 export function TeacherSidebar() {
   const pathname = usePathname();
+  const { instructors } = UseInstructors();
   const { logout } = useAuth();
+  const token = getToken();
+  let userId: string | null = null;
+
+  if (token) {
+    const decodedToken = decode(token);
+
+    // Assuming `decodedToken` has an `email` field
+    if (
+      decodedToken &&
+      typeof decodedToken === "object" &&
+      "email" in decodedToken
+    ) {
+      const userEmail = decodedToken.email;
+      console.log(userEmail);
+
+      // Find the instructor with the matching email and get their ID
+      const instructor = instructors.find(
+        (instructor) => instructor.email === userEmail
+      );
+      if (instructor) {
+        userId = instructor.id;
+      }
+    }
+  }
+
   return (
     <aside className="hidden md:flex h-screen flex-col gap-5 max-w-64 bg-blue-900 text-white">
       <div className="mb-6 md:mb-8 w-full flex items-center md:block p-4 md:p-6">
@@ -60,12 +90,13 @@ export function TeacherSidebar() {
             <UsersIcon className="mr-2 h-4 w-4" /> Teachers
           </Button>
         </Link>
-        <Link href="/teachers/profile">
+        <Link href={`/teachers/profile/${userId}`}>
           <Button
             variant="ghost"
             className={cn(
               "w-full justify-start mb-2 text-sm md:text-base gap-2 hover:bg-blue-500 hover:text-white !py-4",
-              pathname === "/teachers/profile" && "bg-blue-500 text-white"
+              pathname == `/teachers/profile/${userId}` &&
+                "bg-blue-500 text-white"
             )}
           >
             <SquareUser className="mr-2 h-4 w-4" /> Profile

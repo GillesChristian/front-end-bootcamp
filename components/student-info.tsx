@@ -29,7 +29,7 @@ export const StudentInfo: React.FC<StudentInfoProps> = ({
         value={student.dateOfBirth || "Not available"}
       />
       <div className="flex gap-4 mt-10">
-        <Link href={`/students/edit/${student.id}`}>
+        <Link href={`/teachers/profile/${student.id}`}>
           <Button className="bg-white hover:bg-white/80 text-black w-[100px] flex place-content-center">
             Edit
           </Button>

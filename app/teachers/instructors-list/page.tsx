@@ -11,35 +11,32 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useDeleteStudent } from "@/hooks/use-delete-student";
-import { useStudents, Student } from "@/hooks/use-students";
+import { Instructor, UseInstructors } from "@/hooks/use-instructors";
 import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useState } from "react";
-// interface Student {
-//   id: string;
-//   username: string;
-//   email: string;
-//   date_of_birth?: string;
-// }
 
 export default function InstructorsList() {
-  const { students, loading, error, setStudents, refetchStudents } =
-    useStudents();
-  const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
+  const { instructors, loading, error, setInstructors, refetchInstructor } =
+    UseInstructors();
+  const [selectedInstructor, setSelectedInstructor] =
+    useState<Instructor | null>(null);
 
   const onDeleteSuccess = () => {
-    if (selectedStudent) {
-      setStudents((prevStudents) =>
-        prevStudents.filter((student) => student.id !== selectedStudent.id)
+    if (selectedInstructor) {
+      setInstructors((prevStudents) =>
+        prevStudents.filter(
+          (instructor) => instructor.id !== selectedInstructor.id
+        )
       );
-      setSelectedStudent(null);
+      setSelectedInstructor(null);
       toast({
         title: "Student deleted",
         description:
           "The student has been successfully removed from the system.",
       });
-      refetchStudents();
+      refetchInstructor();
     }
   };
 
@@ -62,12 +59,12 @@ export default function InstructorsList() {
       </div>
     );
   if (error) return <div>Error: {error}</div>;
-  if (!Array.isArray(students) || students.length === 0)
+  if (!Array.isArray(instructors) || instructors.length === 0)
     return <div>No students found.</div>;
 
-  const formattedStudents: Student[] = students.map((student) => ({
-    ...student,
-    dateOfBirth: student.dateOfBirth || "",
+  const formattedInstructors: Instructor[] = instructors.map((instructor) => ({
+    ...instructor,
+    dateOfBirth: instructor.dateOfBirth || "",
   }));
 
   return (
@@ -100,28 +97,30 @@ export default function InstructorsList() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {formattedStudents.map((student) => {
+              {formattedInstructors.map((instructor) => {
                 return (
                   <TableRow
-                    key={student.id}
+                    key={instructor.id}
                     className={cn(
                       "transition-all ease-in-out duration-200 hover:bg-[#509CDB] hover:text-white px-2 py-4 text-gray-500 ",
-                      selectedStudent?.email === student.email
+                      selectedInstructor?.email === instructor.email
                         ? "bg-[#509CDB] text-white"
                         : "odd:bg-blue-50"
                     )}
-                    onClick={() => setSelectedStudent(student)}
+                    onClick={() => setSelectedInstructor(instructor)}
                   >
                     <TableCell className="px-2 py-4">
-                      {100 + student.id}
+                      {100 + instructor.id}
                     </TableCell>
                     <TableCell className="px-2 py-4">
-                      {student.firstName}
+                      {instructor.firstName}
                     </TableCell>
                     <TableCell className="px-2 py-4">
-                      {student.lastName}
+                      {instructor.lastName}
                     </TableCell>
-                    <TableCell className="px-2 py-4">{student.email}</TableCell>
+                    <TableCell className="px-2 py-4">
+                      {instructor.email}
+                    </TableCell>
                   </TableRow>
                 );
               })}
@@ -129,7 +128,7 @@ export default function InstructorsList() {
           </Table>
 
           <StudentInfo
-            student={selectedStudent}
+            student={selectedInstructor}
             onDelete={handleDeleteStudent}
             isDeleting={isDeleting}
           />

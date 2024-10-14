@@ -9,7 +9,7 @@ export default function AddInstructor() {
       <h2 className="text-left text-4xl self-start ml-44 font-semibold text-gray-400">
         Add Instructor
       </h2>
-      <AddUserForm status="instructor" />
+      <AddUserForm status="teacher" />
       <Toaster />
     </div>
   );
