@@ -11,7 +11,7 @@ export default function StudentLayout({ children }: LayoutProps) {
   const { user, isAuthenticated } = useAuth();
 
   if (isAuthenticated && user?.role !== "student") {
-    return <p> You don't have authorization for this route!!!</p>;
+    return <p> You dont have authorization for this route!!!</p>;
   }
   return (
     <>

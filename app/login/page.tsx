@@ -51,8 +51,8 @@ const Login = () => {
             <Image
               src="/logo.png"
               alt="School Management System Logo"
-              width={80}
-              height={80}
+              width={120}
+              height={120}
               className="rounded-full bg-white p-2"
             />
           </div>
