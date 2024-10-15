@@ -1,8 +1,6 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
-import { UseInstructors } from "@/hooks/use-instructors";
-import { User } from "@/hooks/use-students";
 import { getToken } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 import { decode } from "jsonwebtoken";
@@ -10,35 +8,26 @@ import { House, LogOut, UsersIcon, SquareUser } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export function TeacherSidebar() {
   const pathname = usePathname();
-  const { instructors } = UseInstructors();
   const { logout } = useAuth();
-  const token = getToken();
-  let userId: string | null = null;
+  const [userId, setUserId] = useState(null);
 
-  if (token) {
-    const decodedToken = decode(token);
-
-    // Assuming `decodedToken` has an `email` field
-    if (
-      decodedToken &&
-      typeof decodedToken === "object" &&
-      "email" in decodedToken
-    ) {
-      const userEmail = decodedToken.email;
-      console.log(userEmail);
-
-      // Find the instructor with the matching email and get their ID
-      const instructor = instructors.find(
-        (instructor) => instructor.email === userEmail
-      );
-      if (instructor) {
-        userId = instructor.id;
+  useEffect(() => {
+    const token = getToken();
+    if (token) {
+      const decodedToken = decode(token);
+      if (
+        decodedToken &&
+        typeof decodedToken === "object" &&
+        "id" in decodedToken
+      ) {
+        setUserId(decodedToken.id);
       }
     }
-  }
+  }, []);
 
   return (
     <aside className="hidden md:flex h-screen flex-col gap-5 max-w-64 bg-blue-900 text-white">

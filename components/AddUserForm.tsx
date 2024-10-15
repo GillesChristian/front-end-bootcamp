@@ -17,7 +17,7 @@ import { useToast } from "@/hooks/use-toast";
 import { registrationSchema } from "@/lib/zodValidation";
 import { useAddUser } from "@/hooks/use-add-users";
 interface Status {
-  status: "student" | "instructor";
+  status: "student" | "teacher";
 }
 export default function AddUserForm(status: Status) {
   const [firstName, setFirstName] = useState("");

@@ -19,6 +19,7 @@ export default function TopStudents() {
   const [selectedStudent, setSelectedStudent] = useState<TopStudent | null>(
     null
   );
+  let count: number = 0;
 
   if (loading)
     return (
@@ -60,6 +61,7 @@ export default function TopStudents() {
                 <TableHead className="px-2 py-4 text-white">
                   Email Address
                 </TableHead>
+                <TableHead className="px-2 py-4 text-white">Position</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -85,6 +87,7 @@ export default function TopStudents() {
                       {student.lastName}
                     </TableCell>
                     <TableCell className="px-2 py-4">{student.email}</TableCell>
+                    <TableCell className="px-2 py-4">{++count}</TableCell>
                   </TableRow>
                 );
               })}

@@ -25,10 +25,10 @@ export const useTopStudents = () => {
       }
       const data = await response.json();
       console.log("Top students: ", data); // Log the entire response
-      setTopStudents(data); // Access the students array from the response
+      setTopStudents(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
-      setTopStudents([]); // Reset to an empty array on error
+      setTopStudents([]);
     } finally {
       setLoading(false);
     }

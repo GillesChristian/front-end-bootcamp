@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -40,14 +40,13 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 interface EditStudentFormProps {
-  paraams: { id: string };
+  params: { id: string };
 }
 
-export function EditStudentForm({ paraams }: EditStudentFormProps) {
+export function EditStudentForm({ params }: EditStudentFormProps) {
   const router = useRouter();
   const { toast } = useToast();
-  const params = useParams(); // Get the params from the URL
-  const id = params?.id;
+  const { id } = params;
   const { student, isLoading, updateStudent } = useStudent(id as string);
 
   const form = useForm<FormValues>({
@@ -85,7 +84,7 @@ export function EditStudentForm({ paraams }: EditStudentFormProps) {
         title: "Success",
         description: "Student information updated successfully.",
       });
-      router.push("/teachers/students-list");
+      router.push("/teachers");
     } catch (error) {
       console.error("Failed to update student:", error);
       toast({

@@ -1,6 +1,6 @@
-"use client"; // Ensure this is present
+"use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -38,7 +38,7 @@ const Login = () => {
     try {
       await login(data?.email, data?.password);
     } catch (error) {
-      setLoginError("Login failed. Please check your credentials."); // You could improve this
+      setLoginError("Login failed. Please check your credentials.");
     }
   };
 
@@ -76,7 +76,7 @@ const Login = () => {
                   <FormField
                     control={form.control}
                     name="email"
-                    rules={{ required: "email is required" }} // Add validation rules
+                    rules={{ required: "email is required" }}
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Email Address</FormLabel>
@@ -90,7 +90,7 @@ const Login = () => {
                   <FormField
                     control={form.control}
                     name="password"
-                    rules={{ required: "Password is required" }} // Add validation rules
+                    rules={{ required: "Password is required" }}
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Password</FormLabel>

@@ -10,7 +10,7 @@ function EditStudentPage() {
   return (
     <div className="container ml-[256px] w-full px-20 py-5 flex flex-col items-center justify-center gap-20 text-left">
       <h2 className="text-4xl font-semibold text-gray-400">Edit User</h2>
-      <EditStudentForm paraams={{ id: studentId }} />
+      <EditStudentForm params={{ id: studentId }} />
       <Toaster />
     </div>
   );

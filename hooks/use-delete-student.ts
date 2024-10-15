@@ -14,7 +14,7 @@ export const useDeleteStudent = (onSuccess: () => void) => {
       const response = await fetch(`http://127.0.0.1:8000/students/${userId}`, {
         method: "DELETE",
         headers: {
-          Authorization: `Bearer ${token}`, // Include the token here
+          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
       });

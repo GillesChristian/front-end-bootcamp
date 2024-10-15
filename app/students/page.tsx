@@ -1,4 +1,4 @@
-import { ChartNoAxesGantt, UserPlus, UserX } from "lucide-react";
+import { ChartNoAxesGantt, UserPlus } from "lucide-react";
 import Link from "next/link";
 
 export default function page() {
@@ -17,14 +17,8 @@ export default function page() {
       title: "Academic Performance",
       description: "Vew your academic performances for the semester.",
     },
-    {
-      id: 3,
-      route: "/students/profile",
-      icon: UserX,
-      title: "Student Profile",
-      description: "you can also view and edit your user profile.",
-    },
   ];
+
   return (
     <div className="flex flex-col gap-20 sm:ml-[256px] text-center">
       <div className="flex flex-col gap-2">
