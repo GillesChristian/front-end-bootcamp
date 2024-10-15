@@ -1,4 +1,4 @@
-import { ChartNoAxesGantt, UserPlus, UserX } from "lucide-react";
+import { ChartNoAxesGantt, UserPlus } from "lucide-react";
 import Link from "next/link";
 
 export default function page() {
@@ -7,23 +7,23 @@ export default function page() {
       id: 1,
       route: "/students",
       icon: ChartNoAxesGantt,
-      title: "View all Students",
-      description: "View all the students stored in our database.",
+      title: "View all Subjects",
+      description: "View all the subjects you offer.",
     },
     {
       id: 2,
-      route: "/students/add",
+      route: "/students/academicReport",
       icon: UserPlus,
-      title: "Add Students",
-      description: "Add other student to the system.",
+      title: "Academic Report",
+      description: "View your Academic Report.",
     },
-    {
-      id: 3,
-      route: "/students",
-      icon: UserX,
-      title: "Edit and Delete student",
-      description: "you can also edit and delete users on the system",
-    },
+    // {
+    //   id: 3,
+    //   route: "/students",
+    //   icon: UserX,
+    //   title: "Edit and Delete student",
+    //   description: "you can also edit and delete users on the system",
+    // },
   ];
   return (
     <div className="flex flex-col gap-20 sm:ml-[256px] text-center">

@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from 'react';
+import React from 'react';
 import {
   Table,
   TableBody,
@@ -8,114 +10,160 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
-import { useState } from "react";
-import { cn } from "@/lib/utils";
-import { useStudents } from "@/hooks/use-students";
-import { useDeleteStudent } from "@/hooks/use-delete-student";
-import { StudentInfo } from "@/components/student-info";
-import { StudentTableSkeleton } from "@/components/StudentTableSkeleton";
-import { toast } from "@/hooks/use-toast";
+// import { SubjectTableSkeleton } from '@/components/SubjectTableSkeleton';
+import { cn } from '@/lib/utils';
 
-// Define the Student interface
-interface Student {
-  id: string;
-  first_name: string;
-  last_name: string;
-  email: string;
-  date_of_birth?: string;
+// Define the type for a subject
+interface Subject {
+  id: number;
+  courseName: string;
+  teacherName: string;
+  grade: string;
+  lastTestScore: number;
 }
 
-export default function StudentDashboard() {
-  const { students, loading, error, setStudents, refetchStudents } = useStudents();
-  const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
+  // Mock data for subjects (could also come from an API)
+  const subjectsData: Subject[] = [
+    { id: 1, courseName: 'Mathematics', teacherName: 'Mr. Smith', grade: 'A', lastTestScore: 95 },
+    { id: 2, courseName: 'History', teacherName: 'Ms. Johnson', grade: 'B+', lastTestScore: 87 },
+    { id: 3, courseName: 'Science', teacherName: 'Dr. Clark', grade: 'A-', lastTestScore: 90 },
+  ];
 
-  const onDeleteSuccess = () => {
-    if (selectedStudent) {
-      setStudents((prevStudents) =>
-        prevStudents.filter((student) => student.id !== selectedStudent.id)
-      );
-      setSelectedStudent(null);
-      toast({
-        title: "Student deleted",
-        description: "The student has been successfully removed from the system.",
-      });
-      refetchStudents();
-    }
-  };
-
-  const {
-    deleteStudent,
-    isDeleting,
-    error: deleteError,
-  } = useDeleteStudent(onDeleteSuccess);
-
-  const handleDeleteStudent = async (id: string) => {
-    if (window.confirm("Are you sure you want to delete this student?")) {
-      await deleteStudent(id);
-    }
-  };
-
-  if (loading) return <StudentTableSkeleton />;
-  if (error) return <div>Error: {error}</div>;
-  if (!Array.isArray(students) || students.length === 0) return <div>No students found.</div>;
-
-  const formattedStudents: Student[] = students.map(student => ({
-    ...student,
-    date_of_birth: student.date_of_birth || "",
-  }));
-
-  return (
-    <div className="container h-screen ml-[256px] px-20 py-5 flex flex-col gap-20">
-      <Link href="/students/add">
-        <Button
-          size="lg"
-          className="bg-[rgba(80,156,219,1)] hover:bg-[rgba(80,156,219,.8)]"
-        >
-          Add Student
-        </Button>
-      </Link>
-      <div className="flex items-start justify-between">
-        <Table className="w-[600px]">
-          <TableHeader className="px-2 py-4">
-            <TableRow className="text-gray-500 font-bold">
-              <TableHead className="px-2 py-4">First Name</TableHead>
-              <TableHead className="px-2 py-4">Last Name</TableHead>
-              <TableHead className="px-2 py-4">Student ID</TableHead>
-              <TableHead className="px-2 py-4">Email Address</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {formattedStudents.map((student) => (
-              <TableRow
-                key={student.id}
-                className={cn(
-                  "transition-all ease-in-out duration-200 hover:bg-[#509CDB] hover:text-white px-2 py-4 text-gray-400",
-                  selectedStudent?.id === student.id && "bg-[#509CDB] text-white"
-                )}
-                onClick={() => setSelectedStudent(student)}
-              >
-                <TableCell className="px-2 py-4">{student.first_name}</TableCell>
-                <TableCell className="px-2 py-4">{student.last_name}</TableCell>
-                <TableCell className="px-2 py-4">{student.id}</TableCell>
-                <TableCell className="px-2 py-4">{student.email}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-
-        <StudentInfo
-          student={selectedStudent}
-          onDelete={handleDeleteStudent}
-          isDeleting={isDeleting}
-        />
+  // Define InfoItem component
+  const InfoItem: React.FC<{ label: string; value: string | number }> = ({ label, value }) => {
+    return (
+      <div className="text-center">
+        <h3 className="font-bold">{label}</h3>
+        <p>{value}</p>
       </div>
-      {deleteError && (
-        <div className="text-red-500 mt-2">
-          Error deleting student: {deleteError}
+    );
+  };
+
+  // Define the props for the SubjectInfo component
+  interface SubjectInfoProps {
+    selectedSubject: Subject | null;
+    handleClose: () => void;  // New prop for closing the info pane
+  }
+
+  // SubjectInfo component
+  const SubjectInfo: React.FC<SubjectInfoProps> = ({ selectedSubject, handleClose}) => {
+    if (!selectedSubject) return;
+
+    return (
+      <div className="py-9 px-14 mt-14 sm:min-w-[350px] h-full rounded-2xl bg-[#509CDB] text-white flex flex-col items-center justify-center gap-4 flex-1">
+        <h2 className="text-2xl font-bold">Subject Information</h2>
+        <InfoItem label="Course Name" value={selectedSubject.courseName} />
+        <InfoItem label="Teacher Name" value={selectedSubject.teacherName} />
+        <InfoItem label="Grade" value={selectedSubject.grade} />
+        <InfoItem label="Last Test Score" value={selectedSubject.lastTestScore} />
+
+        {/* Close Button with similar format */}
+        <div className="flex gap-4 mt-10">
+          <button
+            className="bg-white hover:bg-red/80 text-black w-[100px] flex place-content-center rounded-xl"
+            onClick={handleClose}
+          >
+            Close
+          </button>
         </div>
-      )}
+      </div>
+    );
+  };
+
+  // SubjectList component
+  interface SubjectListProps {
+    subjects: { id: number; courseName: string }[];
+    handleSubjectClick: (subject: { id: number; courseName: string }) => void;
+    selectedSubject: Subject | null;
+  }
+
+const SubjectList: React.FC<SubjectListProps> = ({ subjects, handleSubjectClick, selectedSubject }) => {
+  return (
+    
+    <div className="container h-screen ml-[230px] px-10 py-16 flex flex-col gap-6">
+      <div className="flex items-start justify-between">
+      <Table className="w-[1100px]">
+        <TableHeader className="px-2 py-4 bg-blue-950 hover:bg-blue-950 text-white">
+          <TableRow className="text-gray-500 font-bold">
+            <TableHead className="px-2 py-4 text-white">
+              S/N
+            </TableHead>
+            <TableHead className="px-2 py-4 text-white">
+              Subject Code
+            </TableHead>
+            <TableHead className="px-2 py-4 text-white">
+              Subject
+            </TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {subjects.map((subject, index) => {
+            return (
+            <TableRow
+              key={subject.id}
+              onClick={() => handleSubjectClick(subject)}
+              className={cn(
+                "transition-all ease-in-out duration-200 hover:bg-[#509CDB] hover:text-white px-2 py-4 text-gray-500 ",
+                selectedSubject?.id === subject.id
+                  ? "bg-[#509CDB] text-white"
+                  : "odd:bg-blue-50"
+              )}
+              >
+              {/* Column 1: Serial Number (S/N) */}
+              <TableCell className="px-2 py-4">
+                {index + 1} {/* Display row index as S/N starting from 1 */}
+              </TableCell>
+
+              {/* Column 2: Course Code (100 + subject.id + 5) */}
+              <TableCell className="px-2 py-4">
+                {200 + subject.id *2 + 5}
+              </TableCell>
+
+              {/* Column 3: Subject Name */}
+              <TableCell className="px-2 py-4">
+                {subject.courseName}
+                </TableCell>
+            </TableRow>
+          );
+          })}
+        </TableBody>
+
+      </Table>
+      </div>
     </div>
   );
-}
+};
+
+// Main component (combining SubjectList and SubjectInfo)
+const SubjectsApp: React.FC = () => {
+  const [selectedSubject, setSelectedSubject] = useState<Subject | null>(null);
+
+  // Handle the subject click
+  const handleSubjectClick = (subject: { id: number; courseName: string }) => {
+    const selectedSubjectDetails = subjectsData.find(sub => sub.id === subject.id);
+    setSelectedSubject(selectedSubjectDetails || null);
+  };
+
+   // Handle closing of the subject info panel
+   const handleClose = () => {
+    setSelectedSubject(null);
+  };
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'row' }}>
+      {/* Subject List */}
+      <SubjectList 
+        subjects={subjectsData.map(({ id, courseName }) => ({ id, courseName }))}
+        handleSubjectClick={handleSubjectClick}
+        selectedSubject={selectedSubject}
+      />
+
+      {/* Subject Info */}
+      <SubjectInfo selectedSubject={selectedSubject} 
+      handleClose={handleClose} // Pass the close function as a prop
+      />
+    </div>
+  );
+};
+
+export default SubjectsApp;

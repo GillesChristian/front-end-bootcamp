@@ -46,6 +46,17 @@ export function Sidebar() {
             <UsersIcon className="mr-2 h-4 w-4" /> Students
           </Button>
         </Link>
+        <Link href="/students">
+          <Button
+            variant="ghost"
+            className={cn(
+              "w-full justify-start mb-2 text-sm md:text-base gap-2 hover:bg-blue-500 hover:text-white !py-4",
+              (pathname === "students/academicReport" || pathname.startsWith("/students/academicReport")) && "bg-blue-500 text-white"
+            )}
+          >
+            <UsersIcon className="mr-2 h-4 w-4" /> Academic Report
+          </Button>
+        </Link>
       </nav>
     </aside>
   );
